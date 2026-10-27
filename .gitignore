@@ -1,3 +1,7 @@
 vnev_00
 .env
 books_data.zip
+notebook/data/BX-Book-Ratings.csv
+notebook/data/BX-Books.csv
+notebook/data/BX-Users.csv
+
