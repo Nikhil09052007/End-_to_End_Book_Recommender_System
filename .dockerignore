@@ -8,6 +8,7 @@ __pycache__/
 *.py[cod]
 .env
 *.zip
-artifacts/
+artifacts/dataset/
+artifacts/serialized_objects/book_names.pkl
 logs/
 notebook/

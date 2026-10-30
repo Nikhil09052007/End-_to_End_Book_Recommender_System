@@ -1,7 +1,16 @@
-vnev_00
+vnev_00/
+.venv/
+venv/
 .env
+.streamlit/secrets.toml
 books_data.zip
-notebook/data/BX-Book-Ratings.csv
-notebook/data/BX-Books.csv
-notebook/data/BX-Users.csv
+notebook/data/
+notebook/artifacts/
+artifacts/dataset/
+artifacts/serialized_objects/book_names.pkl
+logs/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+books_recommender_system.egg-info/
 

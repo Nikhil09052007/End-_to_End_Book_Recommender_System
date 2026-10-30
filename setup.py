@@ -9,13 +9,13 @@ AUTHOR_USER_NAME = "Nikhil Pandey"
 SRC_REPO = "books_recommender_system"
 AUTHOR_EMAIL = "pandeynikhil0905@gmail.com"
 LIST_OF_REQUIREMENTS = [
-    "scikit-learn",
-    "pandas",
-    "numpy",
-    "PyYAML",
-    "scipy",
-    "streamlit",
-    "six",
+    "scikit-learn==1.9.1",
+    "pandas==3.0.6",
+    "numpy==2.5.4",
+    "PyYAML==6.0.3",
+    "scipy==1.18.1",
+    "streamlit==1.66.1",
+    "six==1.17.0",
 ]
 
 
@@ -31,6 +31,6 @@ setup(
     author_email=AUTHOR_EMAIL,
     packages=find_packages(),
     license="MIT",
-    python_requires=">=3.7",
+    python_requires=">=3.12",
     install_requires=LIST_OF_REQUIREMENTS
 )

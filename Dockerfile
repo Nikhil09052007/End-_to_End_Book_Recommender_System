@@ -14,6 +14,9 @@ COPY app.py ./
 COPY config/ ./config/
 COPY templates/ ./templates/
 COPY books_recommender_system/ ./books_recommender_system/
+COPY artifacts/serialized_objects/book_pivot.pkl ./artifacts/serialized_objects/book_pivot.pkl
+COPY artifacts/serialized_objects/final_rating.pkl ./artifacts/serialized_objects/final_rating.pkl
+COPY artifacts/trained_model/model.pkl ./artifacts/trained_model/model.pkl
 
 RUN python -m pip install --no-cache-dir --upgrade pip \
     && python -m pip install --no-cache-dir -r requirements.txt

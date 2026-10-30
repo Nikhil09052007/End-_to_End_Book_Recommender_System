@@ -2,7 +2,7 @@
 
 A book recommendation application built with Python, pandas, scikit-learn, and Streamlit. It uses ratings from the Book-Crossing dataset to find books with rating patterns similar to a selected title, then displays up to five recommendations with their cover images.
 
-This repository includes the application code and training pipeline. The dataset and trained model are generated or downloaded when training runs; they are not required to launch the Streamlit interface, but training must complete before recommendations can be requested.
+This repository includes the application, training pipeline, and the small pre-trained files needed to show recommendations immediately. Raw data and intermediate training outputs are generated locally and excluded from Git to keep the repository easier to clone and deploy. Retraining downloads the source dataset from the URL in `config/config.yaml`.
 
 ## Contents
 
@@ -11,8 +11,9 @@ This repository includes the application code and training pipeline. The dataset
 - [Requirements](#requirements)
 - [Install and run on Windows](#install-and-run-on-windows)
 - [Install and run on macOS or Linux](#install-and-run-on-macos-or-linux)
+- [Deploy on Streamlit Community Cloud](#deploy-on-streamlit-community-cloud)
 - [Run with Docker](#run-with-docker)
-- [Train the recommender](#train-the-recommender)
+- [Train or refresh the recommender](#train-or-refresh-the-recommender)
 - [Use the application](#use-the-application)
 - [Dataset and preprocessing](#dataset-and-preprocessing)
 - [Generated files](#generated-files)
@@ -54,6 +55,12 @@ The recommendation model uses ratings rather than book descriptions or text. Cov
 │   └── utils/util.py                       # YAML configuration reader
 ├── templates/
 │   └── book_names.pkl                      # Book titles used by the selection menu
+├── artifacts/
+│   ├── serialized_objects/
+│   │   ├── book_pivot.pkl                   # Book/user rating matrix for inference
+│   │   └── final_rating.pkl                 # Titles and cover image URLs
+│   └── trained_model/
+│       └── model.pkl                        # Pre-trained nearest-neighbor model
 ├── notebook/
 │   └── research.ipynb                      # Exploratory analysis notebook
 ├── requirements.txt                        # Python dependencies
@@ -63,11 +70,11 @@ The recommendation model uses ratings rather than book descriptions or text. Cov
 └── README.md
 ```
 
-Training creates an `artifacts/` directory and a `logs/` directory at runtime. They are not source code. The root-level `books_data.zip`, if you have one, is ignored by Git and is not read directly by the current ingestion code: the pipeline downloads the configured URL into `artifacts/dataset/raw_data/` each time it trains.
+The inference files shown above are included so a deployed app can work immediately. Training creates additional files under `artifacts/dataset/` and `artifacts/serialized_objects/`, as well as timestamped files under `logs/`; these are generated outputs ignored by Git. The root-level `books_data.zip`, if present, is also ignored and is not read directly by the current ingestion code: training downloads the configured URL into `artifacts/dataset/raw_data/` each time it runs.
 
 ## Requirements
 
-- Python 3.10 or newer; Python 3.12 has been used with this project.
+- Python 3.12. The dependency versions and pre-trained model files are pinned for this runtime.
 - Git, if cloning the repository.
 - An internet connection when running the training pipeline, because the pipeline downloads its dataset from the configured URL.
 - Enough disk space for the downloaded dataset, extracted CSV files, intermediate data, and model artifacts.
@@ -111,7 +118,7 @@ Streamlit prints a local address in the terminal, usually `http://localhost:8501
 From the repository root, create and activate a virtual environment:
 
 ```bash
-python3 -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
 ```
 
@@ -123,31 +130,32 @@ pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
+## Deploy on Streamlit Community Cloud
+
+Push the project to a GitHub repository, then create a Community Cloud app using that repository, the branch to deploy, and `app.py` as the entrypoint. In **Advanced settings**, select Python 3.12 to match the checked-in model and pinned dependencies. The app does not require Streamlit secrets: cover image URLs come from the dataset and no external API is called.
+
+The pre-trained inference files under `artifacts/` are included, so the app can recommend books without downloading the full training dataset. Community Cloud installs the pinned dependencies from the root `requirements.txt`.
+
 ## Run with Docker
 
 Install and start Docker Desktop (Windows or macOS) or the Docker Engine (Linux), then run these commands from the repository root:
 
 ```bash
 docker build -t book-recommender .
-docker run --name book-recommender -p 8501:8501 -v book-recommender-artifacts:/app/artifacts -v book-recommender-logs:/app/logs book-recommender
+docker run --name book-recommender -p 8501:8501 -v book-recommender-logs:/app/logs book-recommender
 ```
 
-Open `http://localhost:8501` in a browser. Click **Train Recommender System** and wait for training to finish before requesting recommendations. The container needs internet access for the configured dataset download. The named Docker volumes keep generated artifacts and logs when the container is removed or replaced.
+Open `http://localhost:8501` in a browser. The checked-in model is ready to use. The container needs internet access only if you choose to retrain. The named Docker volume keeps logs when the container is removed or replaced. The pre-trained inference files are included in each image build.
 
 To stop the running container, press `Ctrl+C` in its terminal, or run `docker stop book-recommender` in another terminal. To start the existing stopped container again, use `docker start -ai book-recommender`.
 
-The image uses Python 3.12 and contains the app code, configuration, dependencies, and title list. `.dockerignore` excludes local environments, secrets, logs, notebooks, archives, and generated artifacts from the build context. If you rebuild the image, existing artifacts in Docker volumes remain separate from the image.
+The image uses Python 3.12 and contains the app code, configuration, dependencies, title list, and compact inference artifacts. `.dockerignore` excludes local environments, secrets, logs, notebooks, archives, raw datasets, and training intermediates from the build context. If you retrain inside a container, those new files remain in that container; rebuilding from the repository restores the checked-in pre-trained files.
 
-## Train the recommender
+## Train or refresh the recommender
 
-The first run requires model artifacts. After starting the app:
+The checked-in model is ready to use. To regenerate it, open **Training options** in the app and select **Train or refresh the recommender**. Training downloads the dataset, processes it, and fits a new model. It can take several minutes and needs enough memory and disk space. The app waits synchronously while training runs.
 
-1. Click **Train Recommender System**.
-2. Keep the application running while the pipeline downloads the dataset, processes it, and fits the model. The initial run can take several minutes depending on network speed and computer performance.
-3. Wait for **Training Completed!** before requesting recommendations.
-4. Click **Show Recommendation**.
-
-Training is synchronous in the Streamlit app, so the page may appear busy while the pipeline is running. Avoid starting multiple training runs at once. Training downloads the dataset again on each run with the current implementation.
+For regular Streamlit Community Cloud use, keep the checked-in model and avoid retraining in the hosted app. Retrain locally when you want to update the model or data.
 
 The pipeline can also be started from the repository root in a Python environment with the requirements installed:
 
@@ -160,12 +168,11 @@ The command above runs ingestion, validation, transformation, and model training
 ## Use the application
 
 1. Start Streamlit from the repository root.
-2. Train the recommender if the model has not yet been generated.
-3. Choose a title from the dropdown or type to filter the list.
-4. Click **Show Recommendation**.
-5. The application displays up to five similar titles and their available cover images.
+2. Choose a title from the dropdown or type to filter the list.
+3. Click **Show Recommendation**.
+4. The application displays up to five similar titles and their available cover images.
 
-If the model file is missing, the app displays a message asking you to train before showing recommendations. The selection list is loaded from `templates/book_names.pkl`.
+The selection list is loaded from `templates/book_names.pkl`. If an inference artifact is missing, use the training option to regenerate the model files.
 
 ## Dataset and preprocessing
 
@@ -186,7 +193,7 @@ The thresholds are currently written in `stage_01_data_validation.py`. The datas
 
 ## Generated files
 
-The training pipeline writes these outputs under `artifacts/`:
+The repository includes the three files required for inference. Running the training pipeline also produces these additional local outputs under `artifacts/`:
 
 ```text
 artifacts/
@@ -196,25 +203,25 @@ artifacts/
 │   ├── clean_data/clean_data.csv
 │   └── transformed_data/transformed_data.pkl
 ├── serialized_objects/
-│   ├── book_names.pkl
-│   ├── book_pivot.pkl
-│   └── final_rating.pkl
-└── trained_model/model.pkl
+│   ├── book_names.pkl                      # Generated by training, selection list is in templates/
+│   ├── book_pivot.pkl                      # Tracked: needed for inference
+│   └── final_rating.pkl                     # Tracked: needed for cover lookups
+└── trained_model/model.pkl                  # Tracked: pre-trained inference model
 ```
 
-Logs are written to timestamped files under `logs/`. Re-running training recreates the output files. Do not load pickle files from sources you do not trust; Python pickle files can execute code when loaded.
+The raw dataset, cleaned data, intermediate pivot, generated title list, and logs are ignored by Git. Re-running training recreates them. Do not load pickle files from sources you do not trust; Python pickle files can execute code when loaded.
 
 ## Configuration
 
 Edit `config/config.yaml` to change the dataset URL or output directory names. The configuration is read when the application and pipeline components are initialized. The current app expects to be launched with the repository root as its working directory, so relative paths in the configuration resolve correctly.
 
-The `recommendation_config.poster_api_url` value is present in the YAML file, but the current application does not call that API. Poster images are read directly from the dataset's `Image-URL-L` column.
+Poster images are read directly from the dataset's `Image-URL-L` column. The app does not need an API key or Streamlit secrets.
 
 ## Troubleshooting
 
-### “The recommender model has not been trained yet”
+### “The recommender files are missing”
 
-Click **Train Recommender System** and wait for **Training Completed!**. The model must exist at `artifacts/trained_model/model.pkl` before recommendations can be made.
+The app needs `artifacts/trained_model/model.pkl`, `artifacts/serialized_objects/book_pivot.pkl`, and `artifacts/serialized_objects/final_rating.pkl`. These inference files are included in this repository. If you removed them or they are missing, use **Training options** in the app to regenerate them.
 
 ### The training pipeline cannot download the dataset
 
@@ -238,8 +245,8 @@ Some dataset rows may have an empty or unavailable image URL. The recommendation
 
 ## Notes for contributors
 
-- Keep generated model files, downloaded datasets, virtual environments, logs, and credentials out of source commits unless there is a clear reason to distribute them.
-- `books_data.zip`, `.env`, `vnev_00/`, and the notebook's local data directory are ignored by the current `.gitignore`.
+- Keep downloaded datasets, intermediate training outputs, virtual environments, logs, and credentials out of source commits. The compact model and inference data files under `artifacts/` are tracked because the deployed app needs them.
+- `books_data.zip`, `.env`, virtual environments, notebook data and outputs, training datasets, Python caches, and logs are ignored by `.gitignore`.
 - If you choose to commit the dataset, check its redistribution terms and GitHub's file-size limits first. Large files may need Git Large File Storage.
 - Dependencies are listed in `requirements.txt` and in `setup.py`. When changing runtime imports, update the dependency lists as needed.
-- The Docker image does not contain a pre-trained model. Train it from the app after starting the container; use named volumes if you want generated model files to persist.
+- The Docker build context includes the compact inference artifacts and excludes local raw data and training intermediates. A log volume is configured by the example `docker run` command.
