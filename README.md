@@ -4,8 +4,11 @@ A book recommendation application built with Python, pandas, scikit-learn, and S
 
 This repository includes the application, training pipeline, and the small pre-trained files needed to show recommendations immediately. Raw data and intermediate training outputs are generated locally and excluded from Git to keep the repository easier to clone and deploy. Retraining downloads the source dataset from the URL in `config/config.yaml`.
 
+**Live application:** [Open the Book Recommender](https://end-toendbookrecommendersystem-qus538syamkw4baswuwdzq.streamlit.app/)
+
 ## Contents
 
+- [Live application](#live-application)
 - [How it works](#how-it-works)
 - [Project structure](#project-structure)
 - [Requirements](#requirements)
@@ -20,6 +23,12 @@ This repository includes the application, training pipeline, and the small pre-t
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
 - [Notes for contributors](#notes-for-contributors)
+
+## Live application
+
+Try the deployed Streamlit app here: [https://end-toendbookrecommendersystem-qus538syamkw4baswuwdzq.streamlit.app/](https://end-toendbookrecommendersystem-qus538syamkw4baswuwdzq.streamlit.app/).
+
+Choose a book from the selection menu and click **Show Recommendation** to see up to five similar titles and their available cover images. The application uses the pre-trained recommendation files included in this project, so visitors do not need to download the dataset or train the model themselves.
 
 ## How it works
 
