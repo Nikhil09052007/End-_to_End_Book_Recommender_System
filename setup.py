@@ -8,7 +8,15 @@ REPO_NAME = "books_recommender_system"
 AUTHOR_USER_NAME = "Nikhil Pandey"
 SRC_REPO = "books_recommender_system"
 AUTHOR_EMAIL = "pandeynikhil0905@gmail.com"
-LIST_OF_REQUIREMENTS = []
+LIST_OF_REQUIREMENTS = [
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "PyYAML",
+    "scipy",
+    "streamlit",
+    "six",
+]
 
 
 

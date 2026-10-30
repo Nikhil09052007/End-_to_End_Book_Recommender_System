@@ -1,7 +1,9 @@
 scikit-learn
 pandas
 numpy
-PyAML
+PyYAML
+scipy
 streamlit
-six setuptools
+six
+setuptools
 -e .

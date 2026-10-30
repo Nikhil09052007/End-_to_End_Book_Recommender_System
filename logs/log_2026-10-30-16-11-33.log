@@ -1,0 +1,26 @@
+[2026-10-30 16:11:34,816] root - INFO - Data Validation Config: DataValidationConfig(clean_data_dir='artifacts\\dataset\\clean_data', books_csv_file='artifacts\\dataset\\ingested_data\\BX-Books.csv', ratings_csv_file='artifacts\\dataset\\ingested_data\\BX-Book-Ratings.csv', serialized_objects_dir='artifacts\\serialized_objects')
+[2026-10-30 16:11:34,816] root - INFO - ====================Data Validation log started.==================== 
+[2026-10-30 16:11:36,639] root - INFO -  Shape of ratings data file: (1149780, 3)
+[2026-10-30 16:11:36,639] root - INFO -  Shape of books data file: (271360, 8)
+[2026-10-30 16:11:37,305] root - INFO -  Shape of the final clean dataset: (59850, 9)
+[2026-10-30 16:11:37,470] root - INFO - Saved cleaned data to artifacts\dataset\clean_data
+[2026-10-30 16:11:37,491] root - INFO - Saved final_rating serialization object to artifacts\serialized_objects
+[2026-10-30 16:11:37,498] root - INFO - ====================Data Validation log completed.==================== 
+
+
+[2026-10-30 16:11:37,498] root - INFO - Data Transformation Config: DataTransformationConfig(clean_data_file_path='artifacts\\dataset\\clean_data\\clean_data.csv', transformed_data_dir='artifacts\\dataset\\transformed_data')
+[2026-10-30 16:11:37,498] root - INFO - Data Validation Config: DataValidationConfig(clean_data_dir='artifacts\\dataset\\clean_data', books_csv_file='artifacts\\dataset\\ingested_data\\BX-Books.csv', ratings_csv_file='artifacts\\dataset\\ingested_data\\BX-Book-Ratings.csv', serialized_objects_dir='artifacts\\serialized_objects')
+[2026-10-30 16:11:37,498] root - INFO - ====================Data Transformation log started.==================== 
+[2026-10-30 16:11:37,638] root - INFO -  Shape of book pivot table: (742, 888)
+[2026-10-30 16:11:37,646] root - INFO - Saved pivot table data to artifacts\dataset\transformed_data
+[2026-10-30 16:11:37,648] root - INFO - Saved book_names serialization object to artifacts\serialized_objects
+[2026-10-30 16:11:37,652] root - INFO - Saved book_pivot serialization object to artifacts\serialized_objects
+[2026-10-30 16:11:37,653] root - INFO - ====================Data Transformation log completed.==================== 
+
+
+[2026-10-30 16:11:37,653] root - INFO - Model Trainer Config: ModelTrainerConfig(transformed_data_file_dir='artifacts\\dataset\\transformed_data\\transformed_data.pkl', trained_model_dir='artifacts\\trained_model', trained_model_name='model.pkl')
+[2026-10-30 16:11:37,653] root - INFO - ====================Model Trainer log started.==================== 
+[2026-10-30 16:11:37,687] root - INFO - Saving final model to artifacts\trained_model\model.pkl
+[2026-10-30 16:11:37,688] root - INFO - ====================Model Trainer log completed.==================== 
+
+

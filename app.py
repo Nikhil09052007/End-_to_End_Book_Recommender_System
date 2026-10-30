@@ -19,22 +19,18 @@ class Recommendation:
 
     def fetch_poster(self,suggestion):
         try:
-            book_name = []
-            ids_index = []
             poster_url = []
-            book_pivot =  pickle.load(open(self.recommendation_config.book_pivot_serialized_objects,'rb'))
-            final_rating =  pickle.load(open(self.recommendation_config.final_rating_serialized_objects,'rb'))
+            final_rating = pickle.load(
+                open(self.recommendation_config.final_rating_serialized_objects, 'rb')
+            )
+            book_pivot = pickle.load(
+                open(self.recommendation_config.book_pivot_serialized_objects, 'rb')
+            )
 
-            for book_id in suggestion:
-                book_name.append(book_pivot.index[book_id])
-
-            for name in book_name[0]: 
-                ids = np.where(final_rating['title'] == name)[0][0]
-                ids_index.append(ids)
-
-            for idx in ids_index:
-                url = final_rating.iloc[idx]['image_url']
-                poster_url.append(url)
+            for book_id in suggestion[0]:
+                title = book_pivot.index[book_id]
+                matches = final_rating.loc[final_rating['title'] == title, 'image_url']
+                poster_url.append(matches.iloc[0] if not matches.empty else None)
 
             return poster_url
         
@@ -49,14 +45,13 @@ class Recommendation:
             model = pickle.load(open(self.recommendation_config.trained_model_path,'rb'))
             book_pivot =  pickle.load(open(self.recommendation_config.book_pivot_serialized_objects,'rb'))
             book_id = np.where(book_pivot.index == book_name)[0][0]
-            distance, suggestion = model.kneighbors(book_pivot.iloc[book_id,:].values.reshape(1,-1), n_neighbors=6 )
+            _, suggestion = model.kneighbors(
+                book_pivot.iloc[book_id, :].values.reshape(1, -1), n_neighbors=6
+            )
 
             poster_url = self.fetch_poster(suggestion)
             
-            for i in range(len(suggestion)):
-                    books = book_pivot.index[suggestion[i]]
-                    for j in books:
-                        books_list.append(j)
+            books_list = book_pivot.index[suggestion[0]].tolist()
             return books_list , poster_url   
         
         except Exception as e:
@@ -79,20 +74,25 @@ class Recommendation:
             col1, col2, col3, col4, col5 = st.columns(5)
             with col1:
                 st.text(recommended_books[1])
-                st.image(poster_url[1])
+                if poster_url[1]:
+                    st.image(poster_url[1])
             with col2:
                 st.text(recommended_books[2])
-                st.image(poster_url[2])
+                if poster_url[2]:
+                    st.image(poster_url[2])
 
             with col3:
                 st.text(recommended_books[3])
-                st.image(poster_url[3])
+                if poster_url[3]:
+                    st.image(poster_url[3])
             with col4:
                 st.text(recommended_books[4])
-                st.image(poster_url[4])
+                if poster_url[4]:
+                    st.image(poster_url[4])
             with col5:
                 st.text(recommended_books[5])
-                st.image(poster_url[5])
+                if poster_url[5]:
+                    st.image(poster_url[5])
         except Exception as e:
             raise AppException(e, sys) from e
 
@@ -115,4 +115,8 @@ if __name__ == "__main__":
     
     #recommendation
     if st.button('Show Recommendation'):
-        obj.recommendations_engine(selected_books)
+        if not os.path.isfile(obj.recommendation_config.trained_model_path):
+            st.error('The recommender model has not been trained yet. Click “Train Recommender System” first, then try again.')
+        else:
+            obj.recommendations_engine(selected_books)
+
