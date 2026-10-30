@@ -1,0 +1,13 @@
+.git
+.git/**
+.venv/
+venv/
+vnev_00/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.env
+*.zip
+artifacts/
+logs/
+notebook/
