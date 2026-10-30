@@ -3,4 +3,5 @@ pandas
 numpy
 PyAML
 streamlit
+six setuptools
 -e .
