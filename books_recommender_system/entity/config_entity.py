@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-DataIngestionConfig = namedtuple("DataIngestionConfig", ["dataset_download_url",
+DataIngestionConfig = namedtuple("DatasetConfig", ["dataset_download_url",
                                                    "raw_data_dir",
                                                    "ingested_dir"])
 
@@ -27,5 +27,6 @@ ModelRecommendationConfig = namedtuple("ModelRecommendationConfig", ["book_name_
                                                       "book_pivot_serialized_objects",
                                                       "final_rating_serialized_objects",
                                                       "trained_model_path"])
+
 
                                                                    
